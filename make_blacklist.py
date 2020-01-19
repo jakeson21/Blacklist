@@ -26,6 +26,7 @@ def dump_to_domains(in_path, out_path):
             line = line.split()
             # print(line[1])
             out_file.write(line[1] + '\n')
+    open(out_path.parent.absolute() / 'urls', 'w+')
     print('Finished processing', in_path)
 
 
