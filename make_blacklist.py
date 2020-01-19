@@ -2,6 +2,7 @@ import tarfile
 from os import makedirs, path, remove
 from pathlib import Path
 import re
+import urllib.parse
 
 
 def make_tarfile(output_filename, source_dir):
@@ -19,24 +20,31 @@ def dump_to_domains(in_path, out_path):
         print("Directory ", out_dir_name, " already exists")
 
     in_file = open(in_path, 'r')
-    out_file = open(out_path, 'w+')
+    out_file = open(out_path, 'a+')
     for line in in_file:
         line = line.rstrip()
-        if re.search('^0.0.0.0', line):
+        if re.search('^0\.0\.0\.0', line):
             line = line.split()
-            # print(line[1])
-            out_file.write(line[1] + '\n')
-    open(out_path.parent.absolute() / 'urls', 'w+')
+            line = line[1]
+            line = line.replace('..', '.')
+            # These don't work in SquidGuard
+            if re.search('_', line):
+                continue
+            out_file.write(line + ' ')
     print('Finished processing', in_path)
 
 
-# Process the input files
-dump_to_domains(Path('pornhosts/0.0.0.0/hosts'), Path('archive/pornhosts/BL/pornhosts/domains'))
-dump_to_domains(Path('pornhosts/Mobile 0.0.0.0/hosts'), Path('archive/pornhosts/BL/mobile-pornhosts/domains'))
-
 try:
-    remove('my-blacklist.tar.gz')
+    remove('BL/domains')
 except FileNotFoundError:
     print('file does not exist yet')
-make_tarfile('my-blacklist.tar.gz', Path('archive/pornhosts/BL'))
-print('Created', 'my-blacklist.tar.gz')
+# Process the input files
+dump_to_domains(Path('pornhosts/0.0.0.0/hosts'), Path('BL/domains'))
+dump_to_domains(Path('pornhosts/Mobile 0.0.0.0/hosts'), Path('BL/domains'))
+
+# try:
+#     remove('my-blacklist.tar.gz')
+# except FileNotFoundError:
+#     print('file does not exist yet')
+# make_tarfile('my-blacklist.tar.gz', Path('archive/pornhosts/BL'))
+# print('Created', 'my-blacklist.tar.gz')
