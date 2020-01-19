@@ -1,0 +1,2 @@
+# Blacklist
+My personal blacklist
