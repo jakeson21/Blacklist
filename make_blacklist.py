@@ -1,5 +1,5 @@
 import tarfile
-from os import makedirs, path
+from os import makedirs, path, remove
 from pathlib import Path
 import re
 
@@ -30,12 +30,12 @@ def dump_to_domains(in_path, out_path):
 
 
 # Process the input files
-host_paths = dict()
-host_paths['hosts'] = Path('pornhosts/0.0.0.0/hosts')
-host_paths['mobile-hosts'] = Path('pornhosts/Mobile 0.0.0.0/hosts')
+dump_to_domains(Path('pornhosts/0.0.0.0/hosts'), Path('archive/pornhosts/BL/pornhosts/domains'))
+dump_to_domains(Path('pornhosts/Mobile 0.0.0.0/hosts'), Path('archive/pornhosts/BL/mobile-pornhosts/domains'))
 
-dump_to_domains(host_paths['hosts'], Path('archive/pornhosts/BL/porn/domains'))
-dump_to_domains(host_paths['mobile-hosts'], Path('archive/pornhosts/BL/mobile-porn/domains'))
-
+try:
+    remove('my-blacklist.tar.gz')
+except FileNotFoundError:
+    print('file does not exist yet')
 make_tarfile('my-blacklist.tar.gz', Path('archive/pornhosts/BL'))
 print('Created', 'my-blacklist.tar.gz')
