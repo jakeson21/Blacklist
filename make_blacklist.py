@@ -10,17 +10,9 @@ def make_tarfile(output_filename, source_dir):
         tar.add(source_dir, arcname=path.basename(source_dir))
 
 
-def dump_to_domains(in_path, out_path):
-    # Create target directory & all intermediate directories if don't exists
-    out_dir_name = out_path.parent.absolute()
-    if not path.exists(out_dir_name):
-        makedirs(out_dir_name)
-        print("Directory ", out_dir_name, " created")
-    else:
-        print("Directory ", out_dir_name, " already exists")
-
+def copy_to_dict(in_path):
     in_file = open(in_path, 'r')
-    out_file = open(out_path, 'a+')
+    data = dict()
     for line in in_file:
         line = line.rstrip()
         if re.search('^0\.0\.0\.0', line):
@@ -30,8 +22,24 @@ def dump_to_domains(in_path, out_path):
             # These don't work in SquidGuard
             if re.search('_', line):
                 continue
-            out_file.write(line + ' ')
+            data[line] = True
     print('Finished processing', in_path)
+    return data
+
+
+def dict_to_file(data, out_path):
+    # Create target directory & all intermediate directories if don't exists
+    out_dir_name = out_path.parent.absolute()
+    if not path.exists(out_dir_name):
+        makedirs(out_dir_name)
+        print("Directory ", out_dir_name, " created")
+    else:
+        print("Directory ", out_dir_name, " already exists")
+
+    out_file = open(out_path, 'a+')
+    for key in data:
+        out_file.write(key + ' ')
+    print('Finished writing to', out_path)
 
 
 try:
@@ -39,8 +47,11 @@ try:
 except FileNotFoundError:
     print('file does not exist yet')
 # Process the input files
-dump_to_domains(Path('pornhosts/0.0.0.0/hosts'), Path('BL/domains'))
-dump_to_domains(Path('pornhosts/Mobile 0.0.0.0/hosts'), Path('BL/domains'))
+d1 = copy_to_dict(Path('pornhosts/0.0.0.0/hosts'))
+d2 = copy_to_dict(Path('pornhosts/Mobile 0.0.0.0/hosts'))
+# Dictionary unpacking method of merging dicts
+data = {**d1, **d2}
+dict_to_file(data, Path('BL/domains'))
 
 # try:
 #     remove('my-blacklist.tar.gz')
